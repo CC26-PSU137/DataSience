@@ -5,8 +5,7 @@ from PIL import Image
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import random
-
+import numpy as np
 
 # PAGE CONFIGURATION
 st.set_page_config(
@@ -16,7 +15,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# CUSTOM CSS - MODERN DARK THEME WITH ANIMATIONS
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -26,7 +24,6 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
 
-    /* Animated background particles */
     .stApp::before {
         content: "";
         position: fixed;
@@ -37,7 +34,6 @@ st.markdown("""
         z-index: 0;
     }
 
-    /* Main header with glow effect */
     .main-header { 
         font-size: 3.2rem; 
         font-weight: 900; 
@@ -58,7 +54,6 @@ st.markdown("""
         font-weight: 300;
     }
 
-    /* Card styling */
     .info-card {
         background: linear-gradient(145deg, rgba(30, 30, 30, 0.9) 0%, rgba(20, 20, 20, 0.95) 100%);
         padding: 28px;
@@ -87,7 +82,6 @@ st.markdown("""
         font-size: 0.95rem;
     }
 
-    /* Metric containers */
     [data-testid="metric-container"] {
         background: linear-gradient(145deg, #1a1f2e 0%, #161b22 100%) !important;
         border: 1px solid rgba(76, 175, 80, 0.15) !important;
@@ -113,7 +107,6 @@ st.markdown("""
         font-weight: 800 !important;
     }
 
-    /* Section headers */
     .section-title {
         font-size: 2rem;
         font-weight: 800;
@@ -130,7 +123,6 @@ st.markdown("""
         font-weight: 300;
     }
 
-    /* Category cards */
     .cat-card-organik {
         background: linear-gradient(145deg, rgba(76, 175, 80, 0.1) 0%, rgba(20, 20, 20, 0.95) 100%);
         border-left: 4px solid #4CAF50;
@@ -146,12 +138,10 @@ st.markdown("""
         border-left: 4px solid #F44336;
     }
 
-    /* Sidebar styling */
     .css-1d391kg {
         background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
     }
 
-    /* Button styling */
     .stButton>button {
         background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);
         color: white;
@@ -167,7 +157,6 @@ st.markdown("""
         box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
     }
 
-    /* Image containers */
     .image-container {
         border-radius: 16px;
         overflow: hidden;
@@ -180,20 +169,17 @@ st.markdown("""
         box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
     }
 
-    /* Dataframe styling */
     .stDataFrame {
         border-radius: 16px;
         overflow: hidden;
     }
 
-    /* Selectbox styling */
     .stSelectbox>div>div {
         background: #1a1f2e;
         border-radius: 12px;
         border: 1px solid rgba(76, 175, 80, 0.2);
     }
 
-    /* Radio buttons */
     .stRadio>div {
         background: transparent;
     }
@@ -210,13 +196,11 @@ st.markdown("""
         background: rgba(76, 175, 80, 0.1);
     }
 
-    /* Divider */
     hr {
         border-color: rgba(76, 175, 80, 0.2) !important;
         margin: 2rem 0 !important;
     }
 
-    /* Scrollbar */
     ::-webkit-scrollbar {
         width: 8px;
     }
@@ -230,7 +214,6 @@ st.markdown("""
         border-radius: 4px;
     }
 
-    /* Alert/info boxes */
     .stAlert {
         border-radius: 16px !important;
         border: none !important;
@@ -247,7 +230,6 @@ st.markdown("""
         border-left: 4px solid #FF9800 !important;
     }
 
-    /* Caption styling */
     .caption-text {
         color: #6B7280;
         font-size: 0.85rem;
@@ -256,7 +238,6 @@ st.markdown("""
         margin-top: 8px;
     }
 
-    /* Progress bar animation */
     @keyframes pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.7; }
@@ -266,7 +247,6 @@ st.markdown("""
         animation: pulse 2s infinite;
     }
 
-    /* Tag styling */
     .tag {
         display: inline-block;
         padding: 4px 12px;
@@ -297,7 +277,6 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# SIDEBAR NAVIGATION
 with st.sidebar:
     st.markdown("""
         <div style="text-align: center; margin-bottom: 2rem;">
@@ -316,7 +295,6 @@ with st.sidebar:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Quick stats in sidebar
     st.markdown("<p style='color: #6B7280; font-size: 0.75rem; font-weight: 600;'>QUICK METRICS</p>", unsafe_allow_html=True)
 
     sidebar_metric_1 = st.empty()
@@ -339,7 +317,6 @@ def load_data(path):
 
 df = load_data(DATASET_PATH)
 
-# Update sidebar metrics
 if not df.empty:
     total_data = df["Jumlah"].sum()
     total_classes = df["Kategori"].nunique()
@@ -356,16 +333,12 @@ if not df.empty:
         </div>
     """, unsafe_allow_html=True)
 
-# HOME PAGE
-
 if menu == "🏠 Beranda":
-    # Hero Section
     st.markdown("""
         <h1 class="main-header">SOLO : Sortir & Olah Limbah Online</h1>
         <p class="sub-header">Sistem Klasifikasi Sampah Otomatis Berbasis Computer Vision</p>
     """, unsafe_allow_html=True)
 
-    # Hero image with overlay
     col_img = st.columns([1, 3, 1])[1]
     with col_img:
         st.markdown("""
@@ -377,7 +350,6 @@ if menu == "🏠 Beranda":
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Mission Statement
     st.markdown("""
         <div style="text-align: center; max-width: 800px; margin: 0 auto 3rem auto;">
             <h2 style="color: #F3F4F6; font-size: 1.8rem; font-weight: 700; margin-bottom: 1rem;">
@@ -390,7 +362,6 @@ if menu == "🏠 Beranda":
         </div>
     """, unsafe_allow_html=True)
 
-    # Key Metrics Cards
     if not df.empty:
         st.markdown("<h2 class='section-title'>📊 Metrik Utama</h2>", unsafe_allow_html=True)
 
@@ -406,7 +377,6 @@ if menu == "🏠 Beranda":
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Three Pillars
     st.markdown("<h2 class='section-title'>🎯 Tujuan Utama Sistem</h2>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
@@ -456,15 +426,11 @@ if menu == "🏠 Beranda":
             </div>
         """, unsafe_allow_html=True)
 
-
-# DATASET OVERVIEW
-
 elif menu == "📊 Dataset Overview":
     st.markdown("<h1 class='section-title'>📊 Analisis Distribusi Dataset</h1>", unsafe_allow_html=True)
     st.markdown("<p class='section-subtitle'>Visualisasi komprehensif untuk memahami struktur dan keseimbangan data training</p>", unsafe_allow_html=True)
 
     if not df.empty:
-        # Summary metrics
         col_m1, col_m2, col_m3 = st.columns(3)
         with col_m1:
             total = df["Jumlah"].sum()
@@ -478,7 +444,6 @@ elif menu == "📊 Dataset Overview":
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # Main distribution chart
         fig_dist = px.bar(
             df, 
             x="Kategori", 
@@ -505,7 +470,6 @@ elif menu == "📊 Dataset Overview":
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # Pie chart for subset distribution
         col_pie, col_table = st.columns([1, 1])
 
         with col_pie:
@@ -542,7 +506,6 @@ elif menu == "📊 Dataset Overview":
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # Class balance analysis
         st.markdown("<h2 class='section-title'>⚖️ Analisis Keseimbangan Kelas</h2>", unsafe_allow_html=True)
 
         summary = df.groupby("Kategori", as_index=False)["Jumlah"].sum()
@@ -578,7 +541,6 @@ elif menu == "📊 Dataset Overview":
     else:
         st.error("Path dataset tidak ditemukan. Pastikan direktori `Dataset_Final_Cleaned` tersedia di lokasi yang benar.")
 
-# IMAGE EXPLORATION
 elif menu == "🖼️ Eksplorasi Gambar":
     st.markdown("<h1 class='section-title'>🖼️ Eksplorasi Karakteristik Visual</h1>", unsafe_allow_html=True)
     st.markdown("""
@@ -588,7 +550,6 @@ elif menu == "🖼️ Eksplorasi Gambar":
         </p>
     """, unsafe_allow_html=True)
 
-    # Category deep dives
     st.markdown("<h2 style='color: #F3F4F6; font-size: 1.5rem; margin: 2rem 0 1.5rem 0;'>🔍 Karakteristik Visual per Kategori</h2>", unsafe_allow_html=True)
 
     c1, c2, c3 = st.columns(3)
@@ -667,14 +628,12 @@ elif menu == "🖼️ Eksplorasi Gambar":
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # Image preview section
     st.markdown("<h2 class='section-title'>🖼️ Preview Sampel Gambar</h2>", unsafe_allow_html=True)
 
     path_train = os.path.join(DATASET_PATH, "train")
     if os.path.exists(path_train):
         cat_list = [c for c in os.listdir(path_train) if os.path.isdir(os.path.join(path_train, c))]
 
-        # Styled selectbox
         target = st.selectbox(
             "Pilih Kategori untuk Preview Sampel:",
             cat_list,
@@ -682,10 +641,16 @@ elif menu == "🖼️ Eksplorasi Gambar":
         )
 
         full_p = os.path.join(path_train, target)
-        imgs = os.listdir(full_p)[:8]  # Show up to 8 images
+        imgs = os.listdir(full_p)[:8]
+
+        def img_to_base64_local(img):
+            import base64
+            from io import BytesIO
+            buffered = BytesIO()
+            img.save(buffered, format="PNG")
+            return base64.b64encode(buffered.getvalue()).decode()
 
         if imgs:
-            # Display in 4 columns, 2 rows
             for row in range(0, len(imgs), 4):
                 cols = st.columns(4)
                 for i in range(4):
@@ -696,7 +661,7 @@ elif menu == "🖼️ Eksplorasi Gambar":
                                 img = Image.open(os.path.join(full_p, imgs[idx]))
                                 st.markdown(f"""
                                     <div class="image-container">
-                                        <img src="data:image/png;base64,{img_to_base64(img)}" 
+                                        <img src="data:image/png;base64,{img_to_base64_local(img)}" 
                                              style="width: 100%; border-radius: 16px;" />
                                     </div>
                                     <p class="caption-text">Sample {idx+1} — {target}</p>
@@ -708,23 +673,104 @@ elif menu == "🖼️ Eksplorasi Gambar":
     else:
         st.error("❌ Direktori training tidak ditemukan.")
 
-
-# BUSINESS INSIGHT
-
 elif menu == "📈 Business Insight":
     st.markdown("<h1 class='section-title'>📈 Analisis Pertanyaan Bisnis</h1>", unsafe_allow_html=True)
     st.markdown("<p class='section-subtitle'>Insight data-driven untuk pengambilan keputusan strategis dalam pengelolaan sampah</p>", unsafe_allow_html=True)
 
+    st.markdown("""
+        <div style="background: linear-gradient(145deg, rgba(33, 150, 243, 0.05) 0%, rgba(20, 20, 20, 0.9) 100%); 
+                    padding: 25px; border-radius: 20px; border: 1px solid rgba(33, 150, 243, 0.15);
+                    margin-bottom: 2rem;">
+            <h2 style="color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;">
+                📊 Analisis Volume & Pengelolaan Sampah (EDA)
+            </h2>
+        </div>
+    """, unsafe_allow_html=True)
+
+    try:
+        df_vol = pd.read_csv('Dataset_Sampah_Cleaned_2018_2025.csv')
+
+        with st.expander("Lihat Statistik Deskriptif (Describe Data)", expanded=False):
+            st.dataframe(df_vol.describe(include='all'), use_container_width=True)
+
+        st.markdown("<h3 style='color: #4CAF50; margin-top: 20px;'>1. Kecamatan Penghasil Sampah Paling Banyak</h3>", unsafe_allow_html=True)
+        q1_vol = df_vol.groupby('kecamatan')['berat_kg'].sum().sort_values(ascending=False).reset_index().head(10)
+        fig_q1_v = px.bar(
+            q1_vol, x="berat_kg", y="kecamatan", orientation='h',
+            title="Top 10 Kecamatan Penyumbang Sampah Terbesar",
+            labels={"berat_kg": "Total Berat Sampah (Kg)", "kecamatan": "Kecamatan"},
+            template="plotly_dark", color="berat_kg", color_continuous_scale="Reds"
+        )
+        fig_q1_v.update_layout(yaxis={'categoryorder':'total ascending'})
+        st.plotly_chart(fig_q1_v, use_container_width=True)
+
+        st.markdown("<h3 style='color: #4CAF50; margin-top: 20px;'>2. Jenis Sampah & Metode Pengelolaannya</h3>", unsafe_allow_html=True)
+        col_eda1, col_eda2 = st.columns(2)
+        with col_eda1:
+            jenis_freq = df_vol['jenis_sampah'].value_counts().reset_index()
+            jenis_freq.columns = ['jenis_sampah', 'jumlah']
+            fig_q2a_v = px.bar(
+                jenis_freq, x="jenis_sampah", y="jumlah",
+                title="Distribusi Jenis Sampah",
+                labels={"jumlah": "Frekuensi Kemunculan", "jenis_sampah": "Jenis Sampah"},
+                template="plotly_dark", color="jenis_sampah", color_discrete_sequence=px.colors.qualitative.Pastel
+            )
+            st.plotly_chart(fig_q2a_v, use_container_width=True)
+            
+        with col_eda2:
+            jenis_terbanyak = jenis_freq.iloc[0]['jenis_sampah']
+            pengelolaan_top = df_vol[df_vol['jenis_sampah'] == jenis_terbanyak]['metode_pengelolaan'].value_counts().reset_index()
+            fig_q2b_v = px.bar(
+                pengelolaan_top, x="metode_pengelolaan", y="count",
+                title=f"Metode Pengelolaan Sampah {jenis_terbanyak.title()}",
+                labels={"count": "Jumlah Kasus", "metode_pengelolaan": "Metode Pengelolaan"},
+                template="plotly_dark", color="metode_pengelolaan", color_discrete_sequence=px.colors.sequential.Greens_r
+            )
+            st.plotly_chart(fig_q2b_v, use_container_width=True)
+
+        st.markdown("<h3 style='color: #4CAF50; margin-top: 20px;'>3. Pengaruh Cuaca Terhadap Berat Sampah</h3>", unsafe_allow_html=True)
+        berat_cuaca = df_vol.groupby('cuaca')['berat_kg'].mean().sort_values(ascending=False).reset_index()
+        fig_q3_v = px.bar(
+            berat_cuaca, x="cuaca", y="berat_kg", text_auto='.1f',
+            title="Rata-rata Berat Sampah Berdasarkan Kondisi Cuaca",
+            labels={"berat_kg": "Rata-rata Berat Sampah (Kg)", "cuaca": "Kondisi Cuaca"},
+            template="plotly_dark", color="cuaca", color_discrete_sequence=px.colors.qualitative.Set2
+        )
+        mean_berat_all = df_vol['berat_kg'].mean()
+        fig_q3_v.add_hline(y=mean_berat_all, line_dash="dash", line_color="red", annotation_text=f"Rata-rata: {mean_berat_all:.1f} Kg")
+        st.plotly_chart(fig_q3_v, use_container_width=True)
+        
+        st.markdown("""
+            <div class="info-card" style="border-left-color: #4CAF50; margin-top: 2rem;">
+                <h3 style="color: #4CAF50; margin-bottom: 15px;">Kesimpulan Analisis Data Tabular</h3>
+                <p style="color: #D1D5DB; line-height: 1.8; font-size: 1rem;">
+                    Berdasarkan analisis data sampah yang telah dilakukan, ada beberapa kesimpulan:
+                </p>
+                <ul style="color: #D1D5DB; line-height: 1.8; margin-top: 10px;">
+                    <li><strong>Kecamatan Penyumbang Sampah Terbesar:</strong> Kecamatan Cilandak teridentifikasi sebagai penyumbang berat sampah tertinggi, diikuti oleh Pasar Minggu dan Cengkareng. Hal ini menunjukkan perlunya fokus dan strategi pengelolaan sampah yang lebih intensif di wilayah-wilayah tersebut.</li>
+                    <li><strong>Jenis Sampah Dominan dan Pengelolaan:</strong> Sampah organik adalah jenis sampah yang paling dominan dalam dataset. Untuk mengelola sampah organik secara efektif, metode seperti pengomposan atau produksi biogas sangat direkomendasikan. Selain itu, proporsi sampah anorganik seperti kertas dan plastik yang signifikan menekankan pentingnya program daur ulang yang terstruktur dan edukasi masyarakat mengenai pemilahan sampah di sumbernya.</li>
+                    <li><strong>Pengaruh Cuaca:</strong> Analisis menunjukkan bahwa kondisi cuaca (cerah, hujan, mendung) memiliki pengaruh yang tidak signifikan terhadap jumlah berat sampah yang dihasilkan. Fluktuasi berat sampah cenderung stabil terlepas dari kondisi cuaca, menunjukkan bahwa faktor lain mungkin lebih berpengaruh terhadap volume sampah harian.</li>
+                </ul>
+                <p style="color: #D1D5DB; line-height: 1.8; font-size: 1rem; margin-top: 15px;">
+                    Secara keseluruhan, temuan ini memberikan dasar bagi pemerintah daerah dan pemangku kepentingan lainnya untuk merancang kebijakan dan program pengelolaan sampah yang lebih tepat sasaran, dengan memprioritaskan area dan jenis sampah tertentu, serta mengoptimalkan strategi berdasarkan karakteristik data yang ada.
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    except Exception as e:
+        st.info(f"Visualisasi Volume Sampah tidak dapat ditampilkan. Pastikan file 'Dataset_Sampah_Cleaned_2018_2025.csv' berada dalam folder yang sama. (Error: {e})")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
     if not df.empty:
         summary = df.groupby("Kategori", as_index=False)["Jumlah"].sum()
 
-        # Question 1: Data Quality
         st.markdown("""
             <div style="background: linear-gradient(145deg, rgba(76, 175, 80, 0.05) 0%, rgba(20, 20, 20, 0.9) 100%); 
                         padding: 25px; border-radius: 20px; border: 1px solid rgba(76, 175, 80, 0.15);
                         margin-bottom: 2rem;">
                 <h2 style="color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;">
-                    1️⃣ Apakah Dataset Sudah Cukup Berkualitas dan Seimbang?
+                    1️⃣ Apakah Dataset Gambar Sudah Seimbang?
                 </h2>
             </div>
         """, unsafe_allow_html=True)
@@ -758,20 +804,15 @@ elif menu == "📈 Business Insight":
                     ✅ **Dataset Tergolong Seimbang**
 
                     Selisih antar kelas hanya **{diff}** sampel. Model AI akan belajar secara adil dan tidak mengalami bias terhadap salah satu jenis sampah. 
-                    Distribusi yang merata memastikan akurasi klasifikasi konsisten di semua kategori.
                 """)
             else:
                 st.warning(f"""
                     ⚠️ **Ketimpangan Dataset Terdeteksi**
 
-                    Terdapat selisih **{diff}** sampel antar kelas. Disarankan:
-                    - Menambah data pada kelas minoritas
-                    - Melakukan augmentasi gambar (rotation, flip, brightness)
-                    - Menerapkan teknik SMOTE atau class weighting
+                    Terdapat selisih **{diff}** sampel antar kelas. Disarankan menambah data atau augmentasi.
                 """)
 
         with col_q1_2:
-            # Mini stats
             st.markdown("""
                         <div style="background: #161b22; padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
                         <p style="color: #9CA3AF; font-size: 0.8rem; margin-bottom: 10px;">📊 STATISTIK KESEIMBANGAN</p>
@@ -794,13 +835,12 @@ elif menu == "📈 Business Insight":
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # Question 2: Dominant Category
         st.markdown("""
             <div style="background: linear-gradient(145deg, rgba(33, 150, 243, 0.05) 0%, rgba(20, 20, 20, 0.9) 100%); 
                         padding: 25px; border-radius: 20px; border: 1px solid rgba(33, 150, 243, 0.15);
                         margin-bottom: 2rem;">
                 <h2 style="color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;">
-                    2️⃣ Kategori Sampah Apa yang Paling Sering Muncul?
+                    2️⃣ Kategori Sampah Gambar Apa yang Mendominasi?
                 </h2>
             </div>
         """, unsafe_allow_html=True)
@@ -831,26 +871,20 @@ elif menu == "📈 Business Insight":
         top_count = summary["Jumlah"].max()
         top_pct = (top_count / summary["Jumlah"].sum()) * 100
 
-        st.markdown(f"""
-            <div class="info-card" style="border-left-color: #2196F3;">
-                <h3 style="color: #2196F3; margin-bottom: 15px;">📌 Kesimpulan Strategis</h3>
-                <p style="color: #D1D5DB; line-height: 1.8; font-size: 1rem;">
-                    Kategori <strong style="color: #F3F4F6; font-size: 1.1rem;">{top_cat}</strong> mendominasi dataset dengan 
-                    <strong style="color: #4CAF50;">{top_count:,}</strong> sampel ({top_pct:.1f}% dari total data).
-                    <br><br>
-                    Secara operasional, sistem pengolahan sampah harus memprioritaskan:
-                </p>
-                <ul style="color: #D1D5DB; line-height: 1.8; margin-top: 10px;">
-                    <li>Kapasitas penampungan yang lebih besar untuk jenis <strong>{top_cat}</strong></li>
-                    <li>Alat pemilah otomatis dengan throughput tinggi</li>
-                    <li>Personel dan infrastruktur pengolahan yang memadai</li>
-                    <li>Monitoring volume real-time untuk antisipasi overload</li>
-                </ul>
+        st.markdown("""
+            <div class="info-card" style="margin-top: 2rem; border-left: 4px solid #4CAF50;">
+            <h3 style="color: #4CAF50;">Kesimpulan Akhir: Dataset Klasifikasi Gambar</h3>
+            <p style="color: #D1D5DB; line-height: 1.8;">
+            Seluruh proses dari pengumpulan data hingga finalisasi dataset untuk pelatihan model klasifikasi sampah 
+            telah berhasil dilakukan. Dataset telah dibersihkan dari duplikasi, dinormalisasi ke dalam tiga kategori
+             utama (Anorganik, Organik, B3), dan diseimbangkan untuk mengatasi ketidakseimbangan kelas. 
+            Visualisasi data telah memberikan wawasan tentang distribusi kategori dan ukuran file. Pembagian 
+            dataset menjadi train, test, dan validation telah dilakukan dengan stratifikasi untuk memastikan 
+            representasi kelas yang seimbang di setiap subset. Terakhir, gambar-gambar telah diproses, diubah ukurannya, dan disimpan dalam struktur 
+            folder yang terorganisir, siap untuk digunakan dalam pelatihan model klasifikasi gambar.
+            </p>
             </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-
+     """, unsafe_allow_html=True)
 def img_to_base64(img):
     import base64
     from io import BytesIO
