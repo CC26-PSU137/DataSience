@@ -1,14 +1,7 @@
-Tentu, ini adalah versi lengkap untuk `README.md` Anda. Saya telah menggabungkan seluruh penjelasan detail yang Anda berikan agar tidak ada informasi yang tersingkat dan tetap mempertahankan struktur yang rapi.
-
+---
 ---
 
-# ♻️ SOLO (Sortir & Olah Limbah Online)
-
-Dashboard interaktif berbasis **Streamlit** untuk melakukan analisis dataset gambar sampah, visualisasi distribusi data, serta menjawab pertanyaan bisnis pada *project* klasifikasi sampah.
-
----
-
-## 📌 Deskripsi Project
+## Deskripsi Project
 
 Project ini dibuat sebagai bagian dari **Capstone Project Data Science** yang berfokus pada analisis dataset gambar sampah untuk mendukung pengembangan sistem klasifikasi sampah berbasis *Artificial Intelligence* (AI).
 
@@ -22,13 +15,13 @@ Dashboard ini digunakan untuk:
 
 Kategori sampah yang dianalisis:
 
-* 🟢 Organik
-* 🔵 Anorganik
-* 🔴 B3
+* Organik
+* Anorganik
+* B3
 
 ---
 
-## 🎯 Tujuan Project
+## Tujuan Project
 
 Tujuan utama *project* ini adalah:
 
@@ -39,11 +32,11 @@ Tujuan utama *project* ini adalah:
 
 ---
 
-## 🧠 Pertanyaan Bisnis
+## Pertanyaan Bisnis
 
 Dashboard ini dibuat untuk menjawab beberapa pertanyaan bisnis:
 
-### 1️⃣ Apakah dataset gambar sampah sudah cukup berkualitas dan seimbang?
+### 1️. Apakah dataset gambar sampah sudah cukup berkualitas dan seimbang?
 
 Analisis dilakukan dengan:
 
@@ -51,7 +44,7 @@ Analisis dilakukan dengan:
 * Membandingkan distribusi dataset
 * Melihat selisih jumlah data antar kategori
 
-### 2️⃣ Kategori sampah apa yang paling sering muncul?
+### 2️. Kategori sampah apa yang paling sering muncul?
 
 Analisis dilakukan dengan:
 
@@ -61,7 +54,7 @@ Analisis dilakukan dengan:
 
 ---
 
-## 📊 Analisis Data Tabular (Lokasi Bank Sampah)
+## Analisis Data Tabular (Lokasi Bank Sampah)
 
 Berdasarkan analisis data sampah yang telah dilakukan, ada beberapa kesimpulan:
 
@@ -73,7 +66,7 @@ Secara keseluruhan, temuan ini memberikan dasar bagi pemerintah daerah dan peman
 
 ---
 
-## 🖼️ Kesimpulan Akhir: Dataset Klasifikasi Gambar
+## Kesimpulan Akhir: Dataset Klasifikasi Gambar
 
 Proses penyiapan dataset untuk model *Convolutional Neural Network* (CNN) telah berhasil dilakukan dengan hasil sebagai berikut:
 
@@ -83,42 +76,49 @@ Proses penyiapan dataset untuk model *Convolutional Neural Network* (CNN) telah 
 
 ---
 
-## 🗂️ Struktur Dataset
+## Struktur Dataset
 
-Dataset disusun dengan format:
+Dataset disusun dengan format berikut:
+
+## Struktur Dataset
+
+Dataset disusun dengan format berikut:
 
 ```bash
 Dataset_Final_Cleaned/
 │
-├── train/
-│   ├── Organik/
-│   ├── Anorganik/
-│   └── B3/
+├── content/
+│   └── Dataset_Final_Cleaned/
+│       ├── train/
+│       │   ├── Anorganik/
+│       │   ├── B3/
+│       │   └── Organik/
+│       │
+│       ├── validation/
+│       │   ├── Anorganik/
+│       │   ├── B3/
+│       │   └── Organik/
+│       │
+│       └── test/
+│           ├── Anorganik/
+│           ├── B3/
+│           └── Organik/
 │
-├── validation/
-│   ├── Organik/
-│   ├── Anorganik/
-│   └── B3/
-│
-└── test/
-    ├── Organik/
-    ├── Anorganik/
-    └── B3/
-
+├── venv/
+├── app.py
+├── Dataset_Sampah_Cleaned_2018_2025.csv
+└── Project_capstone_baru.ipynb
 ```
+## Fitur Dashboard
+
+* **Home:** Deskripsi project, informasi dashboard, total dataset, dan jumlah kategori.
+* **Dataset Overview:** Tabel dataset, grafik distribusi, dan *pie chart* persentase kategori.
+* **Visualisasi Gambar:** Menampilkan contoh gambar dari setiap kategori (Organik, Anorganik, B3).
+* **Business Insight:** Hasil analisis bisnis, keseimbangan dataset, dan *metric analysis*.
 
 ---
 
-## 📊 Fitur Dashboard
-
-* **🏠 Home:** Deskripsi project, informasi dashboard, total dataset, dan jumlah kategori.
-* **📊 Dataset Overview:** Tabel dataset, grafik distribusi, dan *pie chart* persentase kategori.
-* **🖼️ Visualisasi Gambar:** Menampilkan contoh gambar dari setiap kategori (Organik, Anorganik, B3).
-* **📈 Business Insight:** Hasil analisis bisnis, keseimbangan dataset, dan *metric analysis*.
-
----
-
-## 🛠️ Library yang Digunakan
+## Library yang Digunakan
 
 | Library | Fungsi |
 | --- | --- |
@@ -132,7 +132,7 @@ Dataset_Final_Cleaned/
 
 ---
 
-## 🚀 Cara Menjalankan Project
+## Cara Menjalankan Project
 
 1. **Clone Repository:** `git clone https://github.com/username/repository.git`
 2. **Masuk ke Folder:** `cd repository`
@@ -141,6 +141,6 @@ Dataset_Final_Cleaned/
 
 ---
 
-## 👨‍💻 Author
+## Author
 
 **Data Science Capstone Team**
