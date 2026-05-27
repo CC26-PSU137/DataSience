@@ -85,6 +85,11 @@ Proses penyiapan dataset untuk model *Convolutional Neural Network* (CNN) telah 
 
 Dataset disusun dengan format berikut:
 
+## Struktur Dataset
+
+Dataset disusun dengan format berikut:
+
+```bash
 Dataset_Final_Cleaned/
 │
 ├── content/
@@ -108,8 +113,7 @@ Dataset_Final_Cleaned/
 ├── app.py
 ├── Dataset_Sampah_Cleaned_2018_2025.csv
 └── Project_capstone_baru.ipynb
----
-
+```
 ## Fitur Dashboard
 
 * **Home:** Deskripsi project, informasi dashboard, total dataset, dan jumlah kategori.
