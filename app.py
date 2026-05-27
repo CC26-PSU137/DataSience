@@ -9,9 +9,13 @@ import numpy as np
 import base64
 import io
 
-def get_base64_of_image(image_path):
+def get_base64_of_image(rel_path):
     try:
-        with open(image_path, "rb") as img_file:
+   
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        full_path = os.path.join(current_dir, rel_path)
+        
+        with open(full_path, "rb") as img_file:
             return base64.b64encode(img_file.read()).decode("utf-8")
     except Exception:
         return ""
