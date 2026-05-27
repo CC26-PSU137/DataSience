@@ -151,6 +151,47 @@ Pada tahap *Feature Engineering*, kita telah berhasil menciptakan 3 fitur (kolom
 3. **`kategori_nilai_ekonomi` (Segmentasi Potensi Daur Ulang):** Mengubah nilai numerik `estimasi_nilai_daur_ulang_rp` menjadi kategori diskrit ('Rendah', 'Sedang', 'Tinggi') menggunakan perhitungan persentil (*quantile*).
    * **Makna Bisnis:** Fitur ini sangat berguna untuk pengambilan keputusan strategis. Daripada melihat angka rupiah yang acak, pemangku kepentingan (seperti pengelola bank sampah) bisa langsung memfilter dan memprioritaskan jenis atau wilayah mana yang menghasilkan sampah dengan kategori "Tinggi" untuk dimaksimalkan potensi ekonomi sirkularnya.
 
+
+"""
+
+df['rasio_kelembaban_berat'] = (
+    df['moisture_level'] / (df['berat_kg'] + 0.01)
+)
+
+df['kategori_suhu'] = pd.cut(
+    df['suhu_celsius'],
+    bins=[0, 25, 35, 100],
+    labels=['Dingin', 'Normal', 'Panas']
+)
+
+df['efisiensi_ruang'] = (
+    df['volume_liter'] / (df['berat_kg'] + 0.01)
+)
+
+df['cuaca_encoded'] = df['cuaca'].astype('category').cat.codes
+
+df['kuartal'] = (
+    (df['bulan'] - 1) // 3
+) + 1
+
+"""### Insight:
+Kita telah berhasil menambahkan 5 fitur (kolom) baru yang memberikan nilai tambah signifikan untuk analisis lanjutan maupun pemodelan *Machine Learning*:
+
+1.  **`rasio_kelembaban_berat` (Moisture-to-Weight Ratio):** Fitur ini didapatkan dari pembagian `moisture_level` dengan `berat_kg`.
+    *   **Makna Bisnis:** Rasio ini penting untuk memahami karakteristik sampah, terutama dalam proses pengolahan seperti pengomposan atau insinerasi. Sampah dengan rasio kelembaban-berat tinggi mungkin memerlukan penanganan khusus untuk mengurangi kadar air sebelum diproses lebih lanjut, yang dapat memengaruhi biaya operasional.
+
+2.  **`kategori_suhu` (Temperature Categories):** Mengkategorikan suhu (`suhu_celsius`) menjadi 'Dingin', 'Normal', atau 'Panas' berdasarkan rentang tertentu.
+    *   **Makna Bisnis:** Fitur kategorikal ini membantu mengidentifikasi bagaimana suhu lingkungan dapat berkorelasi dengan jumlah atau jenis sampah yang dihasilkan, atau bahkan kondisi dekomposisi sampah. Ini bisa menjadi faktor penting dalam perencanaan pengumpulan sampah dan pengelolaan fasilitas.
+
+3.  **`efisiensi_ruang` (Space Efficiency):** Fitur ini menghitung seberapa efisien volume terisi oleh berat sampah, didapatkan dari pembagian `volume_liter` dengan `berat_kg`.
+    *   **Makna Bisnis:** Mirip dengan kepadatan, efisiensi ruang memberikan perspektif terbalik. Ini membantu dalam mengoptimalkan kapasitas truk pengangkut atau tempat penampungan sementara. Sampah dengan efisiensi ruang tinggi (volume besar, berat ringan) memerlukan pertimbangan logistik yang berbeda.
+
+4.  **`cuaca_encoded` (Encoded Weather):** Mengubah fitur kategorikal `cuaca` menjadi representasi numerik menggunakan label encoding.
+    *   **Makna Bisnis:** Fitur ini penting untuk model machine learning yang umumnya membutuhkan input numerik. Dengan mengkodekan cuaca, kita dapat menganalisis dan memodelkan dampak cuaca terhadap volume atau jenis sampah secara kuantitatif, tanpa perlu mengkhawatirkan format data non-numerik.
+
+5.  **`kuartal` (Quarter of the Year):** Mengidentifikasi kuartal tahun (1, 2, 3, 4) berdasarkan bulan.
+    *   **Makna Bisnis:** Fitur ini memungkinkan analisis tren musiman yang lebih granular. Dengan mengetahui kuartal, kita dapat mengidentifikasi pola peningkatan atau penurunan volume sampah pada periode tertentu dalam setahun, yang dapat membantu dalam alokasi sumber daya dan perencanaan strategis jangka pendek.
+
 # Export Data Bersih
 """
 
@@ -181,7 +222,18 @@ berat_per_cuaca = df.groupby('cuaca')['berat_kg'].mean().sort_values(ascending=F
 print("\n--- Rata-rata Berat Sampah (Kg) per Kondisi Cuaca ---")
 display(berat_per_cuaca)
 
-"""### Visualization & Explanatory Analysis
+"""### Insight:
+Dari hasil EDA awal, ditemukan beberapa poin penting:
+
+*   **Kecamatan Penyumbang Sampah Terbesar:** Kecamatan `Cilandak`, `Pasar Minggu`, dan `Cengkareng` secara konsisten menjadi tiga besar penyumbang berat sampah terbanyak. Hal ini mengindikasikan bahwa wilayah-wilayah ini memerlukan perhatian khusus dalam strategi pengelolaan sampah.
+
+*   **Jenis Sampah Dominan:** `Organik` adalah jenis sampah yang paling sering muncul, diikuti oleh `kertas` dan `plastik`. Ini menyoroti pentingnya fokus pada pengelolaan sampah organik (misalnya melalui pengomposan atau biogas) dan pengembangan program daur ulang yang efektif untuk sampah anorganik.
+
+*   **Metode Pengelolaan Sampah Organik:** Untuk sampah organik, metode pengelolaan yang paling umum adalah `bank sampah`, `dibakar`, dan `daur ulang`. Menariknya, metode `kompos` dan `TPA` juga memiliki proporsi yang signifikan.
+
+*   **Pengaruh Cuaca:** Rata-rata berat sampah tidak menunjukkan perbedaan yang signifikan antar kondisi cuaca (`cerah`, `hujan`, `mendung`). Meskipun ada fluktuasi kecil, cuaca tampaknya bukan faktor utama yang mempengaruhi volume total sampah.
+
+### Visualization & Explanatory Analysis
 
 ### Pertanyaan 1 : Kecamatan mana yang menghasilkan sampah paling banyak?
 """
@@ -238,7 +290,7 @@ plt.tight_layout()
 plt.show()
 
 """### Insight:
-Untuk pertanyaan kedua, `Jenis sampah apa yang paling sering muncul dan bagaimana metode pengelolaan terbaiknya?`, grafik menunjukkan bahwa `organik` adalah jenis sampah yang paling dominan dengan jumlah jauh di atas jenis sampah lainnya. Untuk pengelolaan terbaik, sampah organik dapat diolah menjadi kompos atau biogas. Jenis sampah lain seperti `kertas` dan `plastik` juga signifikan, menunjukkan pentingnya program daur ulang dan pemilahan sampah yang efektif.
+Untuk pertanyaan kedua, `Jenis sampah apa yang paling sering muncul dan bagaimana metode pengelolaan terbaiknya?`, grafik menunjukkan bahwa `organik` adalah jenis sampah yang paling dominan dengan jumlah jauh di atas jenis sampah lainnya. Metode pengelolaan yang paling sering tercatat untuk sampah organik adalah `bank sampah`, `dibakar`, dan `daur ulang`, dengan `kompos` juga memiliki proporsi yang signifikan. Ini menunjukkan bahwa fokus pengelolaan sampah organik saat ini mencakup berbagai pendekatan. Jenis sampah lain seperti `kertas` dan `plastik` juga signifikan, menunjukkan pentingnya program daur ulang dan pemilahan sampah yang efektif.
 
 ### Pertanyaan 3 : Apakah cuaca mempengaruhi jumlah berat sampah yang dihasilkan?
 """
@@ -276,14 +328,14 @@ plt.tight_layout()
 plt.show()
 
 """### Insight:
-Analisis untuk pertanyaan ketiga, `Apakah cuaca mempengaruhi jumlah berat sampah yang dihasilkan?`, menunjukkan bahwa meskipun ada sedikit perbedaan rata-rata berat sampah antara kondisi cuaca `cerah`, `hujan`, dan `mendung`, perbedaannya tidak terlalu signifikan. Box plot juga menunjukkan distribusi berat sampah yang serupa di ketiga kategori cuaca. Ini menyiratkan bahwa cuaca mungkin bukan faktor utama yang mempengaruhi *jumlah* berat sampah secara drastis, meskipun mungkin ada pengaruh pada *jenis* sampah atau pola pengumpulan.
+Analisis untuk pertanyaan ketiga, `Apakah cuaca mempengaruhi jumlah berat sampah yang dihasilkan?`, menunjukkan bahwa meskipun ada sedikit perbedaan rata-rata berat sampah antara kondisi cuaca `cerah`, `hujan`, dan `mendung`, perbedaannya tidak terlalu signifikan. Bar plot juga menunjukkan distribusi rata-rata berat sampah yang serupa di ketiga kategori cuaca. Ini menyiratkan bahwa cuaca mungkin bukan faktor utama yang mempengaruhi *jumlah* berat sampah secara drastis, meskipun mungkin ada pengaruh pada *jenis* sampah atau pola pengumpulan.
 
 ### Kesimpulan:
 Berdasarkan analisis data sampah yang telah dilakukan, ada beberapa kesimpulan:
 
 1.  **Kecamatan Penyumbang Sampah Terbesar:** Kecamatan **Cilandak** teridentifikasi sebagai penyumbang berat sampah tertinggi, diikuti oleh Pasar Minggu dan Cengkareng. Hal ini menunjukkan perlunya fokus dan strategi pengelolaan sampah yang lebih intensif di wilayah-wilayah tersebut.
 
-2.  **Jenis Sampah Dominan dan Pengelolaan:** Sampah **organik** adalah jenis sampah yang paling dominan dalam dataset. Untuk mengelola sampah organik secara efektif, metode seperti pengomposan atau produksi biogas sangat direkomendasikan. Selain itu, proporsi sampah anorganik seperti kertas dan plastik yang signifikan menekankan pentingnya program daur ulang yang terstruktur dan edukasi masyarakat mengenai pemilahan sampah di sumbernya.
+2.  **Jenis Sampah Dominan dan Pengelolaan:** Sampah **organik** adalah jenis sampah yang paling dominan dalam dataset. Metode pengelolaan yang paling sering tercatat untuk sampah organik adalah `bank sampah`, `dibakar`, dan `daur ulang`, dengan `kompos` juga memiliki proporsi yang signifikan. Untuk mengelola sampah organik secara lebih efektif dan berkelanjutan, metode seperti pengomposan atau produksi biogas dapat menjadi prioritas. Selain itu, proporsi sampah anorganik seperti kertas dan plastik yang signifikan menekankan pentingnya program daur ulang yang terstruktur dan edukasi masyarakat mengenai pemilahan sampah di sumbernya.
 
 3.  **Pengaruh Cuaca:** Analisis menunjukkan bahwa kondisi cuaca (cerah, hujan, mendung) memiliki **pengaruh yang tidak signifikan** terhadap jumlah berat sampah yang dihasilkan. Fluktuasi berat sampah cenderung stabil terlepas dari kondisi cuaca, menunjukkan bahwa faktor lain mungkin lebih berpengaruh terhadap volume sampah harian.
 

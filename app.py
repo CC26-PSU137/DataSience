@@ -7,10 +7,9 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
 
-# PAGE CONFIGURATION
 st.set_page_config(
     page_title="SOLO",
-    page_icon="♻️",
+    page_icon="ChatGPT Image 27 Mei 2026, 13.23.38.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -32,6 +31,11 @@ st.markdown("""
                     radial-gradient(circle at 80% 20%, rgba(33, 150, 243, 0.03) 0%, transparent 50%);
         pointer-events: none;
         z-index: 0;
+    }
+
+    [data-testid="stSidebar"] [data-testid="stImage"] img {
+        border-radius: 50%;
+        object-fit: cover;
     }
 
     .main-header { 
@@ -238,15 +242,6 @@ st.markdown("""
         margin-top: 8px;
     }
 
-    @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-    }
-
-    .pulse-animation {
-        animation: pulse 2s infinite;
-    }
-
     .tag {
         display: inline-block;
         padding: 4px 12px;
@@ -278,20 +273,21 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 with st.sidebar:
+    st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 1.2, 1])
+    with col2:
+        st.image("ChatGPT Image 27 Mei 2026, 13.23.38.png", use_container_width=True)
+
     st.markdown("""
-        <div style="text-align: center; margin-bottom: 2rem;">
-            <h1 style="font-size: 2rem; margin-bottom: 0.2rem;">♻️</h1>
-            <h2 style="font-size: 1.2rem; color: #4CAF50; font-weight: 700;">SOLO</h2>
-        </div>
+        <h2 style="font-size: 1.2rem; color: #4CAF50; font-weight: 700; text-align:center; margin-top: 0.5rem;">
+            SOLO
+        </h2>
     """, unsafe_allow_html=True)
 
-    menu = st.radio(
-        "",
-        ["🏠 Beranda", "📊 Dataset Overview", "🖼️ Eksplorasi Gambar", "📈 Business Insight"],
-        label_visibility="collapsed"
-    )
-
     st.markdown("---")
+
+    menu = st.radio("Navigasi", ["Beranda", "Dataset Overview", "Eksplorasi Gambar", "Business Insight"])
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -333,7 +329,7 @@ if not df.empty:
         </div>
     """, unsafe_allow_html=True)
 
-if menu == "🏠 Beranda":
+if menu == "Beranda":
     st.markdown("""
         <h1 class="main-header">SOLO : Sortir & Olah Limbah Online</h1>
         <p class="sub-header">Sistem Klasifikasi Sampah Otomatis Berbasis Computer Vision</p>
@@ -363,7 +359,7 @@ if menu == "🏠 Beranda":
     """, unsafe_allow_html=True)
 
     if not df.empty:
-        st.markdown("<h2 class='section-title'>📊 Metrik Utama</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 class='section-title'>Metrik Utama</h2>", unsafe_allow_html=True)
 
         m1, m2, m3, m4 = st.columns(4)
 
@@ -377,14 +373,14 @@ if menu == "🏠 Beranda":
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("<h2 class='section-title'>🎯 Tujuan Utama Sistem</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='section-title'>Tujuan Utama Sistem</h2>", unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
         st.markdown("""
             <div class="info-card cat-card-organik">
-                <h3>🟢 Sampah Organik</h3>
+                <h3>Sampah Organik</h3>
                 <p style="color: #D1D5DB; line-height: 1.7;">
                     Identifikasi sampah organik secara akurat untuk kebutuhan pengolahan pupuk cair maupun padat. 
                     Sistem membedakan sisa sayuran segar dengan yang sudah layu untuk klasifikasi presisi.
@@ -399,7 +395,7 @@ if menu == "🏠 Beranda":
     with col2:
         st.markdown("""
             <div class="info-card cat-card-anorganik">
-                <h3>🔵 Sampah Anorganik</h3>
+                <h3>Sampah Anorganik</h3>
                 <p style="color: #D1D5DB; line-height: 1.7;">
                     Memilah sampah anorganik agar dapat masuk kembali ke rantai ekonomi sirkular melalui industri daur ulang. 
                     Meningkatkan efisiensi bank sampah dengan pemilahan otomatis yang cepat.
@@ -414,7 +410,7 @@ if menu == "🏠 Beranda":
     with col3:
         st.markdown("""
             <div class="info-card cat-card-b3">
-                <h3>🔴 Sampah B3</h3>
+                <h3>Sampah B3</h3>
                 <p style="color: #D1D5DB; line-height: 1.7;">
                     Memisahkan limbah B3 untuk memastikan zat kimia berbahaya tidak mencemari tanah dan sumber air. 
                     Kategori dengan risiko tertinggi yang memerlukan penanganan khusus dan terpisah.
@@ -426,8 +422,8 @@ if menu == "🏠 Beranda":
             </div>
         """, unsafe_allow_html=True)
 
-elif menu == "📊 Dataset Overview":
-    st.markdown("<h1 class='section-title'>📊 Analisis Distribusi Dataset</h1>", unsafe_allow_html=True)
+elif menu == "Dataset Overview":
+    st.markdown("<h1 class='section-title'>Analisis Distribusi Dataset</h1>", unsafe_allow_html=True)
     st.markdown("<p class='section-subtitle'>Visualisasi komprehensif untuk memahami struktur dan keseimbangan data training</p>", unsafe_allow_html=True)
 
     if not df.empty:
@@ -506,7 +502,7 @@ elif menu == "📊 Dataset Overview":
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        st.markdown("<h2 class='section-title'>⚖️ Analisis Keseimbangan Kelas</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 class='section-title'>Analisis Keseimbangan Kelas</h2>", unsafe_allow_html=True)
 
         summary = df.groupby("Kategori", as_index=False)["Jumlah"].sum()
         fig_balance = px.bar(
@@ -541,8 +537,8 @@ elif menu == "📊 Dataset Overview":
     else:
         st.error("Path dataset tidak ditemukan. Pastikan direktori `Dataset_Final_Cleaned` tersedia di lokasi yang benar.")
 
-elif menu == "🖼️ Eksplorasi Gambar":
-    st.markdown("<h1 class='section-title'>🖼️ Eksplorasi Karakteristik Visual</h1>", unsafe_allow_html=True)
+elif menu == "Eksplorasi Gambar":
+    st.markdown("<h1 class='section-title'>Eksplorasi Karakteristik Visual</h1>", unsafe_allow_html=True)
     st.markdown("""
         <p class='section-subtitle'>
             Pemahaman fitur visual sangat krusial dalam pengembangan Convolutional Neural Network (CNN). 
@@ -550,7 +546,7 @@ elif menu == "🖼️ Eksplorasi Gambar":
         </p>
     """, unsafe_allow_html=True)
 
-    st.markdown("<h2 style='color: #F3F4F6; font-size: 1.5rem; margin: 2rem 0 1.5rem 0;'>🔍 Karakteristik Visual per Kategori</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: #F3F4F6; font-size: 1.5rem; margin: 2rem 0 1.5rem 0;'>Karakteristik Visual per Kategori</h2>", unsafe_allow_html=True)
 
     c1, c2, c3 = st.columns(3)
 
@@ -558,7 +554,7 @@ elif menu == "🖼️ Eksplorasi Gambar":
         st.markdown("""
             <div class="info-card cat-card-organik">
                 <div style="text-align: center; margin-bottom: 15px;">
-                    <span style="font-size: 3rem;">🌿</span>
+                    <span style="font-size: 3rem;"></span>
                 </div>
                 <h3 style="text-align: center; color: #4CAF50;">Sampah Organik</h3>
                 <hr style="border-color: rgba(76, 175, 80, 0.2); margin: 15px 0;">
@@ -582,7 +578,7 @@ elif menu == "🖼️ Eksplorasi Gambar":
         st.markdown("""
             <div class="info-card cat-card-anorganik">
                 <div style="text-align: center; margin-bottom: 15px;">
-                    <span style="font-size: 3rem;">♻️</span>
+                    <span style="font-size: 3rem;"></span>
                 </div>
                 <h3 style="text-align: center; color: #2196F3;">Sampah Anorganik</h3>
                 <hr style="border-color: rgba(33, 150, 243, 0.2); margin: 15px 0;">
@@ -606,7 +602,7 @@ elif menu == "🖼️ Eksplorasi Gambar":
         st.markdown("""
             <div class="info-card cat-card-b3">
                 <div style="text-align: center; margin-bottom: 15px;">
-                    <span style="font-size: 3rem;">☠️</span>
+                    <span style="font-size: 3rem;"></span>
                 </div>
                 <h3 style="text-align: center; color: #F44336;">Sampah B3</h3>
                 <hr style="border-color: rgba(244, 67, 54, 0.2); margin: 15px 0;">
@@ -628,7 +624,7 @@ elif menu == "🖼️ Eksplorasi Gambar":
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    st.markdown("<h2 class='section-title'>🖼️ Preview Sampel Gambar</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='section-title'>Preview Sampel Gambar</h2>", unsafe_allow_html=True)
 
     path_train = os.path.join(DATASET_PATH, "train")
     if os.path.exists(path_train):
@@ -669,12 +665,12 @@ elif menu == "🖼️ Eksplorasi Gambar":
                             except:
                                 st.image(img, caption=f"Sample {idx+1} — {target}", use_container_width=True)
         else:
-            st.info("📂 Tidak ada gambar tersedia di kategori ini.")
+            st.info("Tidak ada gambar tersedia di kategori ini.")
     else:
-        st.error("❌ Direktori training tidak ditemukan.")
+        st.error("Direktori training tidak ditemukan.")
 
-elif menu == "📈 Business Insight":
-    st.markdown("<h1 class='section-title'>📈 Analisis Pertanyaan Bisnis</h1>", unsafe_allow_html=True)
+elif menu == "Business Insight":
+    st.markdown("<h1 class='section-title'>Analisis Pertanyaan Bisnis</h1>", unsafe_allow_html=True)
     st.markdown("<p class='section-subtitle'>Insight data-driven untuk pengambilan keputusan strategis dalam pengelolaan sampah</p>", unsafe_allow_html=True)
 
     st.markdown("""
@@ -682,7 +678,7 @@ elif menu == "📈 Business Insight":
                     padding: 25px; border-radius: 20px; border: 1px solid rgba(33, 150, 243, 0.15);
                     margin-bottom: 2rem;">
             <h2 style="color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;">
-                📊 Analisis Volume & Pengelolaan Sampah (EDA)
+                Analisis Volume & Pengelolaan Sampah (EDA)
             </h2>
         </div>
     """, unsafe_allow_html=True)
@@ -770,7 +766,7 @@ elif menu == "📈 Business Insight":
                         padding: 25px; border-radius: 20px; border: 1px solid rgba(76, 175, 80, 0.15);
                         margin-bottom: 2rem;">
                 <h2 style="color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;">
-                    1️⃣ Apakah Dataset Gambar Sudah Seimbang?
+                    Apakah Dataset Gambar Sudah Seimbang?
                 </h2>
             </div>
         """, unsafe_allow_html=True)
@@ -801,13 +797,13 @@ elif menu == "📈 Business Insight":
         with col_q1_1:
             if diff < 300:
                 st.success(f"""
-                    ✅ **Dataset Tergolong Seimbang**
+                    **Dataset Tergolong Seimbang**
 
                     Selisih antar kelas hanya **{diff}** sampel. Model AI akan belajar secara adil dan tidak mengalami bias terhadap salah satu jenis sampah. 
                 """)
             else:
                 st.warning(f"""
-                    ⚠️ **Ketimpangan Dataset Terdeteksi**
+                    **Ketimpangan Dataset Terdeteksi**
 
                     Terdapat selisih **{diff}** sampel antar kelas. Disarankan menambah data atau augmentasi.
                 """)
@@ -815,7 +811,7 @@ elif menu == "📈 Business Insight":
         with col_q1_2:
             st.markdown("""
                         <div style="background: #161b22; padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);">
-                        <p style="color: #9CA3AF; font-size: 0.8rem; margin-bottom: 10px;">📊 STATISTIK KESEIMBANGAN</p>
+                        <p style="color: #9CA3AF; font-size: 0.8rem; margin-bottom: 10px;">STATISTIK KESEIMBANGAN</p>
                     """, unsafe_allow_html=True)
             for _, row in summary.iterrows():
                 pct = (row["Jumlah"] / summary["Jumlah"].sum()) * 100
@@ -840,7 +836,7 @@ elif menu == "📈 Business Insight":
                         padding: 25px; border-radius: 20px; border: 1px solid rgba(33, 150, 243, 0.15);
                         margin-bottom: 2rem;">
                 <h2 style="color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;">
-                    2️⃣ Kategori Sampah Gambar Apa yang Mendominasi?
+                    Kategori Sampah Gambar Apa yang Mendominasi?
                 </h2>
             </div>
         """, unsafe_allow_html=True)
@@ -884,7 +880,8 @@ elif menu == "📈 Business Insight":
             folder yang terorganisir, siap untuk digunakan dalam pelatihan model klasifikasi gambar.
             </p>
             </div>
-     """, unsafe_allow_html=True)
+      """, unsafe_allow_html=True)
+
 def img_to_base64(img):
     import base64
     from io import BytesIO
