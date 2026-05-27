@@ -6,18 +6,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
-import base64
-
-def get_base64_of_image(image_path):
-    try:
-        with open(image_path, "rb") as img_file:
-            return base64.b64encode(img_file.read()).decode("utf-8")
-    except Exception:
-        return ""
 
 st.set_page_config(
     page_title="SOLO",
-    page_icon="♻️",
+    page_icon="/img/logo.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -283,16 +275,11 @@ st.markdown("""
 with st.sidebar:
     st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
     
-    logo_b64 = get_base64_of_image("logo.png")
-    if logo_b64:
-        img_html = f'<img src="data:image/png;base64,{logo_b64}" width="100" height="100" style="border-radius: 50%; object-fit: cover; border: 2px solid #4CAF50;">'
-    else:
-        img_html = '<span style="font-size: 4rem;">♻️</span>'
-        
-    st.markdown(f"""
-        <div style="text-align: center; margin-bottom: 0.5rem;">
-            {img_html}
-        </div>
+    col1, col2, col3 = st.columns([1, 1.2, 1])
+    with col2:
+        st.image("/img/logo.png", use_container_width=True)
+
+    st.markdown("""
         <h2 style="font-size: 1.2rem; color: #4CAF50; font-weight: 700; text-align:center; margin-top: 0.5rem;">
             SOLO
         </h2>
@@ -653,12 +640,13 @@ elif menu == "Eksplorasi Gambar":
         imgs = os.listdir(full_p)[:8]
 
         def img_to_base64_local(img):
-            buffered = io.BytesIO()
+            import base64
+            from io import BytesIO
+            buffered = BytesIO()
             img.save(buffered, format="PNG")
             return base64.b64encode(buffered.getvalue()).decode()
 
         if imgs:
-            import io
             for row in range(0, len(imgs), 4):
                 cols = st.columns(4)
                 for i in range(4):
@@ -893,3 +881,10 @@ elif menu == "Business Insight":
             </p>
             </div>
       """, unsafe_allow_html=True)
+
+def img_to_base64(img):
+    import base64
+    from io import BytesIO
+    buffered = BytesIO()
+    img.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode()
