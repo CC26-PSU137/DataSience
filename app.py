@@ -6,10 +6,19 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import numpy as np
+import base64
+import io
+
+def get_base64_of_image(image_path):
+    try:
+        with open(image_path, "rb") as img_file:
+            return base64.b64encode(img_file.read()).decode("utf-8")
+    except Exception:
+        return ""
 
 st.set_page_config(
     page_title="SOLO",
-    page_icon="foto/logo.png",
+    page_icon="♻️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -31,11 +40,6 @@ st.markdown("""
                     radial-gradient(circle at 80% 20%, rgba(33, 150, 243, 0.03) 0%, transparent 50%);
         pointer-events: none;
         z-index: 0;
-    }
-
-    [data-testid="stSidebar"] [data-testid="stImage"] img {
-        border-radius: 50%;
-        object-fit: cover;
     }
 
     .main-header { 
@@ -275,11 +279,17 @@ st.markdown("""
 with st.sidebar:
     st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
     
-    col1, col2, col3 = st.columns([1, 1.2, 1])
-    with col2:
-        st.image("foto/logo.png", use_container_width=True)
-
-    st.markdown("""
+    logo_b64 = get_base64_of_image("foto/logo.png")
+    if not logo_b64:
+        logo_b64 = get_base64_of_image("logo.png")
+        
+    if logo_b64:
+        img_html = f'<div style="display: flex; justify-content: center;"><img src="data:image/png;base64,{logo_b64}" width="100" height="100" style="border-radius: 50%; object-fit: cover; border: 2px solid #4CAF50;"></div>'
+    else:
+        img_html = '<div style="text-align: center;"><span style="font-size: 4rem;">♻️</span></div>'
+        
+    st.markdown(f"""
+        {img_html}
         <h2 style="font-size: 1.2rem; color: #4CAF50; font-weight: 700; text-align:center; margin-top: 0.5rem;">
             SOLO
         </h2>
@@ -640,9 +650,7 @@ elif menu == "Eksplorasi Gambar":
         imgs = os.listdir(full_p)[:8]
 
         def img_to_base64_local(img):
-            import base64
-            from io import BytesIO
-            buffered = BytesIO()
+            buffered = io.BytesIO()
             img.save(buffered, format="PNG")
             return base64.b64encode(buffered.getvalue()).decode()
 
@@ -874,17 +882,10 @@ elif menu == "Business Insight":
             Seluruh proses dari pengumpulan data hingga finalisasi dataset untuk pelatihan model klasifikasi sampah 
             telah berhasil dilakukan. Dataset telah dibersihkan dari duplikasi, dinormalisasi ke dalam tiga kategori
              utama (Anorganik, Organik, B3), dan diseimbangkan untuk mengatasi ketidakseimbangan kelas. 
-            Visualisasi data telah memberikan wawasan tentang distribusi kategori dan ukuran file. Pembagian 
+            Visualisasi data telah memberikan wawasan tentang distribusi kategori and ukuran file. Pembagian 
             dataset menjadi train, test, dan validation telah dilakukan dengan stratifikasi untuk memastikan 
             representasi kelas yang seimbang di setiap subset. Terakhir, gambar-gambar telah diproses, diubah ukurannya, dan disimpan dalam struktur 
             folder yang terorganisir, siap untuk digunakan dalam pelatihan model klasifikasi gambar.
             </p>
             </div>
       """, unsafe_allow_html=True)
-
-def img_to_base64(img):
-    import base64
-    from io import BytesIO
-    buffered = BytesIO()
-    img.save(buffered, format="PNG")
-    return base64.b64encode(buffered.getvalue()).decode()
