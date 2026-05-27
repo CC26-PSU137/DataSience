@@ -9,7 +9,7 @@ import numpy as np
 
 st.set_page_config(
     page_title="SOLO",
-    page_icon="logo.png",
+    page_icon="/logo.png",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -277,7 +277,7 @@ with st.sidebar:
     
     col1, col2, col3 = st.columns([1, 1.2, 1])
     with col2:
-        st.image("logo.png", use_container_width=True)
+        st.image("/logo.png", use_container_width=True)
 
     st.markdown("""
         <h2 style="font-size: 1.2rem; color: #4CAF50; font-weight: 700; text-align:center; margin-top: 0.5rem;">
