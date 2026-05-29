@@ -1,8 +1,3 @@
-<<<<<<< HEAD
----
----
-
-=======
 ---
 
 # SOLO (Sortir & Olah Limbah Online)
@@ -11,7 +6,6 @@ Dashboard interaktif berbasis **Streamlit** untuk melakukan analisis dataset gam
 
 ---
 
->>>>>>> 536e81c0edc7df2277624acce3a52c789afaf298
 ## Deskripsi Project
 
 Project ini dibuat sebagai bagian dari **Capstone Project Data Science** yang berfokus pada analisis dataset gambar sampah untuk mendukung pengembangan sistem klasifikasi sampah berbasis *Artificial Intelligence* (AI).
