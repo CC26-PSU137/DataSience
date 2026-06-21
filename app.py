@@ -9,7 +9,6 @@ import numpy as np
 import base64
 import io
 import tensorflow as tf
-from sklearn.metrics import confusion_matrix
 
 def get_base64_of_image(rel_path):
     try:
@@ -908,11 +907,11 @@ elif menu == "Business Insight":
 
 elif menu == "Evaluasi Model":
     st.markdown("<h1 class='section-title'>Evaluasi Kinerja Model</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='section-subtitle'>Visualisasi riwayat pelatihan dan Confusion Matrix dari data pengujian.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='section-subtitle'>Visualisasi riwayat pelatihan dan Confusion Matrix dari proses training model.</p>", unsafe_allow_html=True)
     
     st.markdown("<h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>Visualisasi History Pelatihan</h2>", unsafe_allow_html=True)
     
-    uploaded_history_img = st.file_uploader("Unggah gambar grafik history pelatihan (JPG/PNG)...", type=["jpg", "jpeg", "png"], key="history_img")
+    uploaded_history_img = st.file_uploader("Unggah gambar grafik History Pelatihan (JPG/PNG)...", type=["jpg", "jpeg", "png"], key="hist")
     
     if uploaded_history_img is not None:
         hist_image = Image.open(uploaded_history_img)
@@ -922,50 +921,13 @@ elif menu == "Evaluasi Model":
 
     st.markdown("<br><h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>Confusion Matrix</h2>", unsafe_allow_html=True)
     
-    if st.button("Generate Confusion Matrix"):
-        if klasifikasi_model is None:
-            st.error("Model gagal dimuat. Pastikan file model .keras tersedia.")
-        else:
-            with st.spinner("Mengevaluasi data pengujian... (Ini mungkin memakan waktu beberapa saat)"):
-                test_dir = os.path.join(DATASET_PATH, "test")
-                if os.path.exists(test_dir):
-                    y_true = []
-                    y_pred = []
-                    class_names = ['Anorganik', 'B3', 'Organik']
-                    
-                    for class_idx, class_name in enumerate(class_names):
-                        class_dir = os.path.join(test_dir, class_name)
-                        if os.path.exists(class_dir):
-                            for img_name in os.listdir(class_dir):
-                                img_path = os.path.join(class_dir, img_name)
-                                try:
-                                    img = Image.open(img_path)
-                                    if img.mode != "RGB":
-                                        img = img.convert("RGB")
-                                    img_resized = img.resize((224, 224))
-                                    img_array = np.array(img_resized)
-                                    img_array = np.expand_dims(img_array, axis=0)
-                                    
-                                    pred = klasifikasi_model.predict(img_array, verbose=0)
-                                    pred_idx = np.argmax(pred[0])
-                                    
-                                    y_true.append(class_idx)
-                                    y_pred.append(pred_idx)
-                                except:
-                                    continue
-                    
-                    if len(y_true) > 0:
-                        cm = confusion_matrix(y_true, y_pred)
-                        fig_cm = px.imshow(cm, text_auto=True, 
-                                           x=class_names, y=class_names,
-                                           labels=dict(x="Prediksi", y="Aktual", color="Jumlah"),
-                                           color_continuous_scale='Blues',
-                                           template='plotly_dark')
-                        st.plotly_chart(fig_cm, use_container_width=True)
-                    else:
-                        st.warning("Tidak ada gambar yang berhasil diproses di folder test.")
-                else:
-                    st.error(f"Folder data test tidak ditemukan di path: {test_dir}")
+    uploaded_cm_img = st.file_uploader("Unggah gambar Confusion Matrix (JPG/PNG)...", type=["jpg", "jpeg", "png"], key="cm")
+    
+    if uploaded_cm_img is not None:
+        cm_image = Image.open(uploaded_cm_img)
+        st.image(cm_image, caption='Confusion Matrix Hasil Evaluasi', use_container_width=True)
+    else:
+        st.info("Harap unggah gambar Confusion Matrix model Anda.")
 
 elif menu == "Uji Model AI":
     st.markdown("<h1 class='section-title'>Uji Coba Model Klasifikasi 🤖</h1>", unsafe_allow_html=True)
