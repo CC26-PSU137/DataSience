@@ -907,27 +907,25 @@ elif menu == "Business Insight":
 
 elif menu == "Evaluasi Model":
     st.markdown("<h1 class='section-title'>Evaluasi Kinerja Model</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='section-subtitle'>Visualisasi riwayat pelatihan dan Confusion Matrix dari proses training model.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='section-subtitle'>Visualisasi riwayat pelatihan (Accuracy & Loss) dan hasil Confusion Matrix pada data pengujian (Test Set).</p>", unsafe_allow_html=True)
     
-    st.markdown("<h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>Visualisasi History Pelatihan</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>1. Visualisasi History Pelatihan</h2>", unsafe_allow_html=True)
     
-    uploaded_history_img = st.file_uploader("Unggah gambar grafik History Pelatihan (JPG/PNG)...", type=["jpg", "jpeg", "png"], key="hist")
-    
-    if uploaded_history_img is not None:
-        hist_image = Image.open(uploaded_history_img)
-        st.image(hist_image, caption='Grafik History Pelatihan', use_container_width=True)
-    else:
-        st.info("Harap unggah gambar grafik history pelatihan model Anda.")
+    try:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        hist_path = os.path.join(current_dir, 'history.png')
+        st.image(hist_path, caption="Grafik Akurasi dan Loss selama proses training", use_container_width=True)
+    except Exception:
+        st.warning("File 'history.png' tidak ditemukan di dalam folder aplikasi.")
 
-    st.markdown("<br><h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>Confusion Matrix</h2>", unsafe_allow_html=True)
+    st.markdown("<br><h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>2. Confusion Matrix</h2>", unsafe_allow_html=True)
     
-    uploaded_cm_img = st.file_uploader("Unggah gambar Confusion Matrix (JPG/PNG)...", type=["jpg", "jpeg", "png"], key="cm")
-    
-    if uploaded_cm_img is not None:
-        cm_image = Image.open(uploaded_cm_img)
-        st.image(cm_image, caption='Confusion Matrix Hasil Evaluasi', use_container_width=True)
-    else:
-        st.info("Harap unggah gambar Confusion Matrix model Anda.")
+    try:
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        cm_path = os.path.join(current_dir, 'confusion_matrix.png')
+        st.image(cm_path, caption="Confusion Matrix dari Evaluasi Model (Data Test)", use_container_width=True)
+    except Exception:
+        st.warning("File 'confusion_matrix.png' tidak ditemukan di dalam folder aplikasi.")
 
 elif menu == "Uji Model AI":
     st.markdown("<h1 class='section-title'>Uji Coba Model Klasifikasi 🤖</h1>", unsafe_allow_html=True)
@@ -943,7 +941,7 @@ elif menu == "Uji Model AI":
             
             with col_img:
                 image = Image.open(uploaded_file)
-                st.image(image, caption='Gambar yang diunggah', use_container_width=True)
+                st.image(image, use_container_width=True)
             
             with col_res:
                 st.markdown("<h3 style='color: #F3F4F6;'>Hasil Analisis</h3>", unsafe_allow_html=True)
