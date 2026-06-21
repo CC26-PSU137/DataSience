@@ -8,17 +8,26 @@ from plotly.subplots import make_subplots
 import numpy as np
 import base64
 import io
+import tensorflow as tf
 
 def get_base64_of_image(rel_path):
     try:
-   
         current_dir = os.path.dirname(os.path.abspath(__file__))
         full_path = os.path.join(current_dir, rel_path)
-        
         with open(full_path, "rb") as img_file:
             return base64.b64encode(img_file.read()).decode("utf-8")
     except Exception:
         return ""
+
+@st.cache_resource
+def load_classification_model():
+    try:
+        model = tf.keras.models.load_model('model_solo_final.keras')
+        return model
+    except Exception as e:
+        return None
+
+klasifikasi_model = load_classification_model()
 
 st.set_page_config(
     page_title="SOLO",
@@ -301,7 +310,7 @@ with st.sidebar:
 
     st.markdown("---")
 
-    menu = st.radio("Navigasi", ["Beranda", "Dataset Overview", "Eksplorasi Gambar", "Business Insight"])
+    menu = st.radio("Navigasi", ["Beranda", "Dataset Overview", "Eksplorasi Gambar", "Business Insight", "Uji Model AI"])
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -893,3 +902,57 @@ elif menu == "Business Insight":
             </p>
             </div>
       """, unsafe_allow_html=True)
+
+elif menu == "Uji Model AI":
+    st.markdown("<h1 class='section-title'>Uji Coba Model Klasifikasi 🤖</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='section-subtitle'>Unggah gambar sampah untuk diklasifikasikan secara real-time oleh model SOLO.</p>", unsafe_allow_html=True)
+
+    if klasifikasi_model is None:
+        st.error("⚠️ Model 'model_solo_final.keras' tidak ditemukan! Pastikan file tersebut sudah dipindahkan ke folder yang sama dengan script ini.")
+    else:
+        uploaded_file = st.file_uploader("Pilih gambar sampah (JPG/PNG)...", type=["jpg", "jpeg", "png"])
+        
+        if uploaded_file is not None:
+            col_img, col_res = st.columns([1, 1])
+            
+            with col_img:
+                image = Image.open(uploaded_file)
+                st.image(image, caption='Gambar yang diunggah', use_container_width=True)
+            
+            with col_res:
+                st.markdown("<h3 style='color: #F3F4F6;'>Hasil Analisis</h3>", unsafe_allow_html=True)
+                
+                if st.button('🔍 Mulai Klasifikasi'):
+                    with st.spinner('Sedang memproses gambar...'):
+                        try:
+                            target_size = (224, 224)
+                            
+                            if image.mode != "RGB":
+                                image = image.convert("RGB")
+                                
+                            img_resized = image.resize(target_size)
+                            img_array = np.array(img_resized)
+                            img_array = np.expand_dims(img_array, axis=0)
+                            img_array = img_array / 255.0
+                            
+                            predictions = klasifikasi_model.predict(img_array)
+                            predicted_class_idx = np.argmax(predictions[0])
+                            confidence = np.max(predictions[0]) * 100
+                            
+                            class_names = ['Anorganik', 'B3', 'Organik']
+                            
+                            predicted_class = class_names[predicted_class_idx]
+                            
+                            if predicted_class == 'Organik':
+                                st.success(f"**Kategori:** {predicted_class}")
+                            elif predicted_class == 'Anorganik':
+                                st.info(f"**Kategori:** {predicted_class}")
+                            else:
+                                st.error(f"**Kategori:** {predicted_class}")
+                                
+                            st.write(f"**Tingkat Kepercayaan (Confidence):** {confidence:.2f}%")
+                            
+                            st.progress(int(confidence))
+                            
+                        except Exception as e:
+                            st.error(f"Terjadi kesalahan saat memproses: {e}")
