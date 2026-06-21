@@ -9,6 +9,7 @@ import numpy as np
 import base64
 import io
 import tensorflow as tf
+from sklearn.metrics import confusion_matrix
 
 def get_base64_of_image(rel_path):
     try:
@@ -22,12 +23,14 @@ def get_base64_of_image(rel_path):
 @st.cache_resource
 def load_classification_model():
     try:
-        model = tf.keras.models.load_model('model_solo_final.keras')
-        return model
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(current_dir, 'model_solo_final.keras')
+        model = tf.keras.models.load_model(model_path)
+        return model, None
     except Exception as e:
-        return None
+        return None, str(e)
 
-klasifikasi_model = load_classification_model()
+klasifikasi_model, error_msg = load_classification_model()
 
 st.set_page_config(
     page_title="SOLO",
@@ -310,7 +313,7 @@ with st.sidebar:
 
     st.markdown("---")
 
-    menu = st.radio("Navigasi", ["Beranda", "Dataset Overview", "Eksplorasi Gambar", "Business Insight", "Uji Model AI"])
+    menu = st.radio("Navigasi", ["Beranda", "Dataset Overview", "Eksplorasi Gambar", "Business Insight", "Evaluasi Model", "Uji Model AI"])
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -903,12 +906,87 @@ elif menu == "Business Insight":
             </div>
       """, unsafe_allow_html=True)
 
+elif menu == "Evaluasi Model":
+    st.markdown("<h1 class='section-title'>Evaluasi Kinerja Model</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='section-subtitle'>Visualisasi riwayat pelatihan dan Confusion Matrix dari data pengujian.</p>", unsafe_allow_html=True)
+    
+    st.markdown("<h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>Visualisasi History Pelatihan</h2>", unsafe_allow_html=True)
+    
+    history_df = None
+    if os.path.exists('training_history.csv'):
+        history_df = pd.read_csv('training_history.csv')
+    else:
+        uploaded_history = st.file_uploader("Unggah file training_history.csv", type=["csv"])
+        if uploaded_history is not None:
+            history_df = pd.read_csv(uploaded_history)
+            
+    if history_df is not None:
+        if 'accuracy' in history_df.columns and 'loss' in history_df.columns:
+            col1, col2 = st.columns(2)
+            with col1:
+                fig_acc = px.line(history_df, y=['accuracy', 'val_accuracy'], title='Model Accuracy', template='plotly_dark')
+                st.plotly_chart(fig_acc, use_container_width=True)
+            with col2:
+                fig_loss = px.line(history_df, y=['loss', 'val_loss'], title='Model Loss', template='plotly_dark')
+                st.plotly_chart(fig_loss, use_container_width=True)
+        else:
+            st.error("File CSV tidak memiliki kolom 'accuracy' atau 'loss'.")
+    else:
+        st.info("File 'training_history.csv' tidak ditemukan. Harap unggah file tersebut.")
+
+    st.markdown("<br><h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>Confusion Matrix</h2>", unsafe_allow_html=True)
+    
+    if st.button("Generate Confusion Matrix"):
+        if klasifikasi_model is None:
+            st.error("Model gagal dimuat. Pastikan file model .keras tersedia.")
+        else:
+            with st.spinner("Mengevaluasi data pengujian... (Ini mungkin memakan waktu beberapa saat)"):
+                test_dir = os.path.join(DATASET_PATH, "test")
+                if os.path.exists(test_dir):
+                    y_true = []
+                    y_pred = []
+                    class_names = ['Anorganik', 'B3', 'Organik']
+                    
+                    for class_idx, class_name in enumerate(class_names):
+                        class_dir = os.path.join(test_dir, class_name)
+                        if os.path.exists(class_dir):
+                            for img_name in os.listdir(class_dir):
+                                img_path = os.path.join(class_dir, img_name)
+                                try:
+                                    img = Image.open(img_path)
+                                    if img.mode != "RGB":
+                                        img = img.convert("RGB")
+                                    img_resized = img.resize((224, 224))
+                                    img_array = np.array(img_resized)
+                                    img_array = np.expand_dims(img_array, axis=0)
+                                    
+                                    pred = klasifikasi_model.predict(img_array, verbose=0)
+                                    pred_idx = np.argmax(pred[0])
+                                    
+                                    y_true.append(class_idx)
+                                    y_pred.append(pred_idx)
+                                except:
+                                    continue
+                    
+                    if len(y_true) > 0:
+                        cm = confusion_matrix(y_true, y_pred)
+                        fig_cm = px.imshow(cm, text_auto=True, 
+                                           x=class_names, y=class_names,
+                                           labels=dict(x="Prediksi", y="Aktual", color="Jumlah"),
+                                           color_continuous_scale='Blues',
+                                           template='plotly_dark')
+                        st.plotly_chart(fig_cm, use_container_width=True)
+                    else:
+                        st.warning("Tidak ada gambar yang berhasil diproses di folder test.")
+                else:
+                    st.error(f"Folder data test tidak ditemukan di path: {test_dir}")
+
 elif menu == "Uji Model AI":
     st.markdown("<h1 class='section-title'>Uji Coba Model Klasifikasi 🤖</h1>", unsafe_allow_html=True)
     st.markdown("<p class='section-subtitle'>Unggah gambar sampah untuk diklasifikasikan secara real-time oleh model SOLO.</p>", unsafe_allow_html=True)
 
     if klasifikasi_model is None:
-        st.error("⚠️ Model 'model_solo_final.keras' tidak ditemukan! Pastikan file tersebut sudah dipindahkan ke folder yang sama dengan script ini.")
+        st.error(f"⚠️ Gagal memuat model! Error aslinya: {error_msg}")
     else:
         uploaded_file = st.file_uploader("Pilih gambar sampah (JPG/PNG)...", type=["jpg", "jpeg", "png"])
         
@@ -933,7 +1011,6 @@ elif menu == "Uji Model AI":
                             img_resized = image.resize(target_size)
                             img_array = np.array(img_resized)
                             img_array = np.expand_dims(img_array, axis=0)
-                            predictions = klasifikasi_model.predict(img_array)
                             
                             predictions = klasifikasi_model.predict(img_array)
                             predicted_class_idx = np.argmax(predictions[0])
