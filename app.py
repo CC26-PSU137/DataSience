@@ -933,7 +933,7 @@ elif menu == "Uji Model AI":
                             img_resized = image.resize(target_size)
                             img_array = np.array(img_resized)
                             img_array = np.expand_dims(img_array, axis=0)
-                            img_array = img_array / 255.0
+                            predictions = klasifikasi_model.predict(img_array)
                             
                             predictions = klasifikasi_model.predict(img_array)
                             predicted_class_idx = np.argmax(predictions[0])
