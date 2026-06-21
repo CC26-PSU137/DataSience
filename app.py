@@ -9,6 +9,8 @@ import numpy as np
 import base64
 import io
 import tensorflow as tf
+from sklearn.metrics import confusion_matrix, accuracy_score
+import random
 
 def get_base64_of_image(rel_path):
     try:
@@ -907,40 +909,111 @@ elif menu == "Business Insight":
 
 elif menu == "Evaluasi Model":
     st.markdown("<h1 class='section-title'>Evaluasi Kinerja Model</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='section-subtitle'>Visualisasi riwayat pelatihan (Accuracy & Loss) dan hasil Confusion Matrix pada data pengujian (Test Set).</p>", unsafe_allow_html=True)
-    
-    st.markdown("<h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>1. Visualisasi History Pelatihan</h2>", unsafe_allow_html=True)
-    
-    try:
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        hist_path = os.path.join(current_dir, 'history.png')
-        st.image(hist_path, caption="Grafik Akurasi dan Loss selama proses training", use_container_width=True)
-    except Exception:
-        st.warning("File 'history.png' tidak ditemukan di dalam folder aplikasi.")
+    st.markdown("<p class='section-subtitle'>Mengevaluasi model secara langsung menggunakan dataset test untuk menghasilkan Confusion Matrix.</p>", unsafe_allow_html=True)
 
-    st.markdown("<br><h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>2. Confusion Matrix</h2>", unsafe_allow_html=True)
-    
-    try:
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        cm_path = os.path.join(current_dir, 'confusion_matrix.png')
-        st.image(cm_path, caption="Confusion Matrix dari Evaluasi Model (Data Test)", use_container_width=True)
-    except Exception:
-        st.warning("File 'confusion_matrix.png' tidak ditemukan di dalam folder aplikasi.")
+    if st.button("🚀 Mulai Evaluasi Dataset Test"):
+        if klasifikasi_model is None:
+            st.error("Model gagal dimuat. Pastikan file model .keras tersedia.")
+        else:
+            test_dir = os.path.join(DATASET_PATH, "test")
+            if os.path.exists(test_dir):
+                y_true = []
+                y_pred = []
+                class_names = ['Anorganik', 'B3', 'Organik']
+                
+                total_images = sum([len(files) for r, d, files in os.walk(test_dir)])
+                
+                if total_images > 0:
+                    progress_text = st.empty()
+                    progress_bar = st.progress(0)
+                    processed = 0
+                    
+                    for class_idx, class_name in enumerate(class_names):
+                        class_dir = os.path.join(test_dir, class_name)
+                        if os.path.exists(class_dir):
+                            for img_name in os.listdir(class_dir):
+                                img_path = os.path.join(class_dir, img_name)
+                                try:
+                                    img = Image.open(img_path)
+                                    if img.mode != "RGB":
+                                        img = img.convert("RGB")
+                                    img_resized = img.resize((224, 224))
+                                    img_array = np.array(img_resized)
+                                    img_array = np.expand_dims(img_array, axis=0)
+                                    
+                                    pred = klasifikasi_model.predict(img_array, verbose=0)
+                                    pred_idx = np.argmax(pred[0])
+                                    
+                                    y_true.append(class_idx)
+                                    y_pred.append(pred_idx)
+                                except:
+                                    pass
+                                
+                                processed += 1
+                                progress_bar.progress(processed / total_images)
+                                progress_text.text(f"Memproses gambar {processed} dari {total_images}...")
+                    
+                    progress_text.empty()
+                    
+                    if len(y_true) > 0:
+                        cm = confusion_matrix(y_true, y_pred)
+                        acc = accuracy_score(y_true, y_pred)
+                        
+                        st.success(f"Evaluasi Selesai! Akurasi Model pada Data Test: **{acc*100:.2f}%**")
+                        
+                        fig_cm = px.imshow(cm, text_auto=True, 
+                                           x=class_names, y=class_names,
+                                           labels=dict(x="Prediksi Model", y="Kategori Aktual", color="Jumlah"),
+                                           color_continuous_scale='Blues',
+                                           template='plotly_dark')
+                        fig_cm.update_layout(title="Confusion Matrix", height=500)
+                        st.plotly_chart(fig_cm, use_container_width=True)
+                    else:
+                        st.warning("Tidak ada gambar yang berhasil dievaluasi.")
+                else:
+                    st.info("Folder test kosong.")
+            else:
+                st.error(f"Folder data test tidak ditemukan di path: {test_dir}")
 
 elif menu == "Uji Model AI":
     st.markdown("<h1 class='section-title'>Uji Coba Model Klasifikasi 🤖</h1>", unsafe_allow_html=True)
-    st.markdown("<p class='section-subtitle'>Unggah gambar sampah untuk diklasifikasikan secara real-time oleh model SOLO.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='section-subtitle'>Uji model menggunakan gambar sendiri atau ambil secara acak dari dataset.</p>", unsafe_allow_html=True)
 
     if klasifikasi_model is None:
         st.error(f"⚠️ Gagal memuat model! Error aslinya: {error_msg}")
     else:
-        uploaded_file = st.file_uploader("Pilih gambar sampah (JPG/PNG)...", type=["jpg", "jpeg", "png"])
+        pilihan_uji = st.radio("Pilih Metode Pengujian:", ["Unggah Gambar Sendiri", "Gunakan Gambar dari Dataset Test"])
         
-        if uploaded_file is not None:
+        image = None
+        
+        if pilihan_uji == "Unggah Gambar Sendiri":
+            uploaded_file = st.file_uploader("Pilih gambar sampah (JPG/PNG)...", type=["jpg", "jpeg", "png"])
+            if uploaded_file is not None:
+                image = Image.open(uploaded_file)
+        else:
+            test_dir = os.path.join(DATASET_PATH, "test")
+            if os.path.exists(test_dir):
+                if st.button("🎲 Ambil Gambar Acak"):
+                    classes = [d for d in os.listdir(test_dir) if os.path.isdir(os.path.join(test_dir, d))]
+                    if classes:
+                        rand_class = random.choice(classes)
+                        class_dir = os.path.join(test_dir, rand_class)
+                        imgs = os.listdir(class_dir)
+                        if imgs:
+                            rand_img = random.choice(imgs)
+                            img_path = os.path.join(class_dir, rand_img)
+                            image = Image.open(img_path)
+                            st.session_state['random_image'] = image
+                            st.session_state['random_class'] = rand_class
+            
+            if 'random_image' in st.session_state:
+                image = st.session_state['random_image']
+                st.info(f"Gambar ini diambil dari folder kelas aktual: **{st.session_state['random_class']}**")
+
+        if image is not None:
             col_img, col_res = st.columns([1, 1])
             
             with col_img:
-                image = Image.open(uploaded_file)
                 st.image(image, use_container_width=True)
             
             with col_res:
