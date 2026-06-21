@@ -912,27 +912,13 @@ elif menu == "Evaluasi Model":
     
     st.markdown("<h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>Visualisasi History Pelatihan</h2>", unsafe_allow_html=True)
     
-    history_df = None
-    if os.path.exists('training_history.csv'):
-        history_df = pd.read_csv('training_history.csv')
+    uploaded_history_img = st.file_uploader("Unggah gambar grafik history pelatihan (JPG/PNG)...", type=["jpg", "jpeg", "png"], key="history_img")
+    
+    if uploaded_history_img is not None:
+        hist_image = Image.open(uploaded_history_img)
+        st.image(hist_image, caption='Grafik History Pelatihan', use_container_width=True)
     else:
-        uploaded_history = st.file_uploader("Unggah file training_history.csv", type=["csv"])
-        if uploaded_history is not None:
-            history_df = pd.read_csv(uploaded_history)
-            
-    if history_df is not None:
-        if 'accuracy' in history_df.columns and 'loss' in history_df.columns:
-            col1, col2 = st.columns(2)
-            with col1:
-                fig_acc = px.line(history_df, y=['accuracy', 'val_accuracy'], title='Model Accuracy', template='plotly_dark')
-                st.plotly_chart(fig_acc, use_container_width=True)
-            with col2:
-                fig_loss = px.line(history_df, y=['loss', 'val_loss'], title='Model Loss', template='plotly_dark')
-                st.plotly_chart(fig_loss, use_container_width=True)
-        else:
-            st.error("File CSV tidak memiliki kolom 'accuracy' atau 'loss'.")
-    else:
-        st.info("File 'training_history.csv' tidak ditemukan. Harap unggah file tersebut.")
+        st.info("Harap unggah gambar grafik history pelatihan model Anda.")
 
     st.markdown("<br><h2 style='color: #F3F4F6; font-size: 1.5rem; margin-bottom: 1rem;'>Confusion Matrix</h2>", unsafe_allow_html=True)
     
